@@ -4,62 +4,68 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const axios = require('axios');
-const baseUrl = 'https://zvukovic-5000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/';
+const baseUrl = 'http://localhost:5000/';
 
 
 const getBooksAsync = async () => {
     try {
-        console.log("Calling in ...");
         const response = await axios.get(baseUrl);
-        console.log('r', response);
-        const listOfEntries = response.data;
-        listOfEntries.forEach((book) => {
-            console.log(book);
-        });
+        const books = response.data;
+        for (const [key, book] of Object.entries(books)) {
+            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
+            console.log(formattedBook);
+        }
     } catch (error) {
         console.error(error.toString());
     }
 }
-
-getBooksAsync();
 
 const getBookByISBNAsync = async (isbn) => {
     try {
-        const response = await axios.get(baseUrl + isbn);
-        const listOfEntries = response.data.entries;
-        listOfEntries.forEach((book) => {
-            console.log(book);
-        });
+        const response = await axios.get(`${baseUrl}isbn/${isbn}`);
+        const books = response.data;
+        for (const [key, book] of Object.entries(books)) {
+            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
+            console.log(formattedBook);
+        }
     } catch (error) {
         console.error(error.toString());
     }
 }
+
 
 const getBooksByAuthorAsync = async (author) => {
     try {
-        const response = await axios.get(baseUrl + author);
-        const listOfEntries = response.data.entries;
-        listOfEntries.forEach((book) => {
-            console.log(book);
-        });
+        const response = await axios.get(`${baseUrl}author/${author}`);
+        const books = response.data;
+        for (const [key, book] of Object.entries(books)) {
+            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
+            console.log(formattedBook);
+        }
     } catch (error) {
         console.error(error.toString());
     }
 }
+
+
 
 const getBooksByTitleAsync = async (title) => {
     try {
-        const response = await axios.get(baseUrl + title);
-        const listOfEntries = response.data.entries;
-        listOfEntries.forEach((book) => {
-            console.log(book);
-        });
+        const response = await axios.get(`${baseUrl}title/${title}`);
+        const books = response.data;
+        for (const [key, book] of Object.entries(books)) {
+            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
+            console.log(formattedBook);
+        }
     } catch (error) {
         console.error(error.toString());
     }
 }
 
-
+// getBooksAsync();
+// getBooksByAuthorAsync("Dante Alighieri");
+// getBookByISBNAsync(1);
+// getBooksByTitleAsync("Fairy tales")
 
 
 public_users.post("/register", (req,res) => {
