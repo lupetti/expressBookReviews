@@ -5,11 +5,7 @@ const regd_users = express.Router();
 
 let users = [];
 
-const isValid = (username)=>{ 
-    return !doesExist(username);
-}
-
-const doesExist = (username) => {
+const isValid = (username) => { 
     let userswithsamename = users.filter((user) => {
         return user.username === username;
     });

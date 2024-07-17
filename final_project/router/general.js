@@ -3,6 +3,56 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
+
+
+const getBooksAsync = async () => {
+    try {
+        const response = await axios.get('');
+        const listOfEntries = response.data.entries;
+        listOfEntries.forEach((book) => {
+            console.log(book);
+        });
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+
+const getBookByISBNAsync = async (isbn) => {
+    try {
+        const response = await axios.get('');
+        const listOfEntries = response.data.entries;
+        listOfEntries.forEach((book) => {
+            console.log(book);
+        });
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+
+const getBooksByAuthorAsync = async (author) => {
+    try {
+        const response = await axios.get('');
+        const listOfEntries = response.data.entries;
+        listOfEntries.forEach((book) => {
+            console.log(book);
+        });
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+
+const getBooksByTitleAsync = async (title) => {
+    try {
+        const response = await axios.get('');
+        const listOfEntries = response.data.entries;
+        listOfEntries.forEach((book) => {
+            console.log(book);
+        });
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
 
 
 public_users.post("/register", (req,res) => {
@@ -45,7 +95,7 @@ public_users.get('/author/:author',function (req, res) {
     if (matchedBooksByAuthor.length > 0) {
         res.send(JSON.stringify(matchedBooksByAuthor, null, 4));
     } else {
-        res.status(404).send({ message: 'No books found by ' + authorToMatch + '.' });
+        res.status(404).send({ message: "No books found by " + authorToMatch + "." });
     }
 });
 
@@ -63,7 +113,7 @@ public_users.get('/title/:title',function (req, res) {
     if (matchedBooksByTitle.length > 0) {
         res.send(JSON.stringify(matchedBooksByTitle, null, 4));
     } else {
-        res.status(404).send({ message: 'No books found with title ' + titleToMatch + '.' });
+        res.status(404).send({ message: "No books found with title " + titleToMatch + "." });
     }
 });
 
@@ -75,7 +125,7 @@ public_users.get('/review/:isbn',function (req, res) {
   if(book) {
     res.send(JSON.stringify(book.reviews, null, 4));
   } else {
-    res.status(404).send({ message: 'Book not found.' });
+    res.status(404).send({ message: "Book not found." });
   }
 });
 
