@@ -4,96 +4,48 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const axios = require('axios');
+//const baseUrl = 'https://zvukovic-5000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/';
 const baseUrl = 'http://localhost:5000/';
 
+
+// Get the book list available in the shop
+public_users.get('/',function (req, res) {
+    const response = {
+        books: books
+      };
+    res.send(JSON.stringify(response, null, 4));
+});
 
 const getBooksAsync = async () => {
     try {
         const response = await axios.get(baseUrl);
         const books = response.data;
-        for (const [key, book] of Object.entries(books)) {
-            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
-            console.log(formattedBook);
-        }
-    } catch (error) {
-        console.error(error.toString());
-    }
-}
-
-const getBookByISBNAsync = async (isbn) => {
-    try {
-        const response = await axios.get(`${baseUrl}isbn/${isbn}`);
-        const books = response.data;
-        for (const [key, book] of Object.entries(books)) {
-            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
-            console.log(formattedBook);
-        }
-    } catch (error) {
-        console.error(error.toString());
-    }
-}
-
-
-const getBooksByAuthorAsync = async (author) => {
-    try {
-        const response = await axios.get(`${baseUrl}author/${author}`);
-        const books = response.data;
-        for (const [key, book] of Object.entries(books)) {
-            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
-            console.log(formattedBook);
-        }
-    } catch (error) {
-        console.error(error.toString());
-    }
-}
-
-
-
-const getBooksByTitleAsync = async (title) => {
-    try {
-        const response = await axios.get(`${baseUrl}title/${title}`);
-        const books = response.data;
-        for (const [key, book] of Object.entries(books)) {
-            const formattedBook = `"${key}": ${JSON.stringify(book, null, 2)}`;
-            console.log(formattedBook);
-        }
+        console.log(books);
     } catch (error) {
         console.error(error.toString());
     }
 }
 
 // getBooksAsync();
-// getBooksByAuthorAsync("Dante Alighieri");
-// getBookByISBNAsync(1);
-// getBooksByTitleAsync("Fairy tales")
-
-
-public_users.post("/register", (req,res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-    
-    if (username && password) {
-        if (isValid(username)) {
-            users.push({"username": username, "password": password});
-            return res.status(200).json({message: "User successfully registered."});
-        } else {
-            return res.status(404).json({message: "User already exists."});
-        }
-    }
-    return res.status(404).json({message: "Unable to register user."});
-});
-
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books, null, 4));
-});
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-   let isbn = req.params.isbn;
-   res.send(JSON.stringify(books[isbn], null, 4));
- });
-  
+    let isbn = req.params.isbn;
+    res.send(JSON.stringify(books[isbn], null, 4));
+});
+
+const getBookByISBNAsync = async (isbn) => {
+    try {
+        const response = await axios.get(`${baseUrl}isbn/${isbn}`);
+        const books = response.data;
+        console.log(books);
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+
+// getBookByISBNAsync(1);
+
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     let authorToMatch = req.params.author;
@@ -101,16 +53,39 @@ public_users.get('/author/:author',function (req, res) {
 
     for (let key in books) {
         if (books[key].author === authorToMatch) {
-            matchedBooksByAuthor.push(books[key]);
+            // destructure the book, to remove the author, because in the sample screenshot
+            // it is requested to have the result without the author property
+            const { author, ...bookWithoutAuthor } = books[key];
+
+            //Add isbn, to match how the result is requested in the sample screenshot
+            const bookWithISBN = {
+                isbn: key,
+                ...bookWithoutAuthor
+            };
+            matchedBooksByAuthor.push(bookWithISBN);
         }
     }
 
     if (matchedBooksByAuthor.length > 0) {
-        res.send(JSON.stringify(matchedBooksByAuthor, null, 4));
+        const response = {
+            booksbyauthor: matchedBooksByAuthor
+          };
+        res.send(JSON.stringify(response, null, 4));
     } else {
         res.status(404).send({ message: "No books found by " + authorToMatch + "." });
     }
 });
+
+const getBooksByAuthorAsync = async (author) => {
+    try {
+        const response = await axios.get(`${baseUrl}author/${author}`);
+        const books = response.data;
+        console.log(books);
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+// getBooksByAuthorAsync("Dante Alighieri");
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
@@ -119,16 +94,56 @@ public_users.get('/title/:title',function (req, res) {
 
     for (let key in books) {
         if (books[key].title === titleToMatch) {
-            matchedBooksByTitle.push(books[key]);
+            // destructure the book, to remove the title, because in the sample screenshot
+            // it is requested to have the result without the title property
+            const { title, ...bookWithoutTitle} = books[key];
+
+            //Add isbn, to match how the result is requested in the sample screenshot
+             const bookWithISBN = {
+                isbn: key,
+                ...bookWithoutTitle
+            }
+            matchedBooksByTitle.push(bookWithISBN);
         }
     }
 
     if (matchedBooksByTitle.length > 0) {
-        res.send(JSON.stringify(matchedBooksByTitle, null, 4));
+        const response = {
+            booksbytitle: matchedBooksByTitle
+          };
+        res.send(JSON.stringify(response, null, 4));
     } else {
         res.status(404).send({ message: "No books found with title " + titleToMatch + "." });
     }
 });
+
+const getBooksByTitleAsync = async (title) => {
+    try {
+        const response = await axios.get(`${baseUrl}title/${title}`);
+        const books = response.data;
+        console.log(books);
+    } catch (error) {
+        console.error(error.toString());
+    }
+}
+// getBooksByTitleAsync("Fairy tales")
+
+
+public_users.post("/register", (req,res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+      
+    if (username && password) {
+        if (isValid(username)) {
+            users.push({"username": username, "password": password});
+            return res.status(200).json({message: "Customer successfully registered. Now you can login"});
+        } else {
+            return res.status(404).json({message: "User already exists."});
+        }
+    }
+    return res.status(404).json({message: "Unable to register user."});
+});
+
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {

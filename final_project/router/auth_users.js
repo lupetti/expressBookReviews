@@ -10,9 +10,9 @@ const isValid = (username) => {
         return user.username === username;
     });
     if (userswithsamename.length > 0) {
-        return true;
-    } else {
         return false;
+    } else {
+        return true;
     }
 }
 
@@ -43,7 +43,7 @@ regd_users.post("/login", (req,res) => {
         req.session.authorization = {
             accessToken, username
         }
-        return res.status(200).send({message: "User successfully logged in"});
+        return res.status(200).send("Customer successfully logged in");
     } else {
         return res.status(208).json({ message: "Invalid Login. Check username and password" });
     }
@@ -51,7 +51,8 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-   const book = books[req.params.isbn];
+   const isbn = req.params.isbn;
+   const book = books[isbn];
    if(!book){
         return res.status(404).json({ message: "Book not found." });
    }
@@ -61,11 +62,12 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
    }
    const currentUser = req.session.authorization.username;
    book.reviews[currentUser] = req.query.review;
-   res.send({ "message": "Review added/updated successfully."})
+   res.send( `The review for the book with ISBN ${isbn} has been added/updated.`);
 });
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
-    const book = books[req.params.isbn];
+   const isbn = req.params.isbn;
+   const book = books[isbn];
    if(!book){
         return res.status(404).json({ message: "Book not found." });
    }
@@ -77,7 +79,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
    }
    
    delete book.reviews[currentUser];
-   res.send({ "message": "Review deleted successfuly."})
+   res.send( `Reviews for the ISBN ${isbn} posted by the user ${currentUser} deleted.`)
 });
 
 module.exports.authenticated = regd_users;
