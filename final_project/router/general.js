@@ -4,7 +4,6 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const axios = require('axios');
-//const baseUrl = 'https://zvukovic-5000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/';
 const baseUrl = 'http://localhost:5000/';
 
 
