@@ -4,12 +4,15 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const axios = require('axios');
+const baseUrl = 'https://zvukovic-5000.theianext-1-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/';
 
 
 const getBooksAsync = async () => {
     try {
-        const response = await axios.get('');
-        const listOfEntries = response.data.entries;
+        console.log("Calling in ...");
+        const response = await axios.get(baseUrl);
+        console.log('r', response);
+        const listOfEntries = response.data;
         listOfEntries.forEach((book) => {
             console.log(book);
         });
@@ -18,9 +21,11 @@ const getBooksAsync = async () => {
     }
 }
 
+getBooksAsync();
+
 const getBookByISBNAsync = async (isbn) => {
     try {
-        const response = await axios.get('');
+        const response = await axios.get(baseUrl + isbn);
         const listOfEntries = response.data.entries;
         listOfEntries.forEach((book) => {
             console.log(book);
@@ -32,7 +37,7 @@ const getBookByISBNAsync = async (isbn) => {
 
 const getBooksByAuthorAsync = async (author) => {
     try {
-        const response = await axios.get('');
+        const response = await axios.get(baseUrl + author);
         const listOfEntries = response.data.entries;
         listOfEntries.forEach((book) => {
             console.log(book);
@@ -44,7 +49,7 @@ const getBooksByAuthorAsync = async (author) => {
 
 const getBooksByTitleAsync = async (title) => {
     try {
-        const response = await axios.get('');
+        const response = await axios.get(baseUrl + title);
         const listOfEntries = response.data.entries;
         listOfEntries.forEach((book) => {
             console.log(book);
@@ -53,6 +58,8 @@ const getBooksByTitleAsync = async (title) => {
         console.error(error.toString());
     }
 }
+
+
 
 
 public_users.post("/register", (req,res) => {
