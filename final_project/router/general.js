@@ -8,64 +8,48 @@ const baseUrl = 'http://localhost:5000/';
 
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-    const response = {
-        books: books
-      };
+public_users.get('/',async (req, res) => {
+    const response = await getBooksAsync();
     res.send(JSON.stringify(response, null, 4));
 });
 
 const getBooksAsync = async () => {
     try {
-        const response = await axios.get(baseUrl);
-        const books = response.data;
-        console.log(books);
+        const response = {
+            books: books
+       };
+       return new Promise((resolve) => {
+            resolve(response);
+        });
     } catch (error) {
         console.error(error.toString());
     }
 }
 
-// getBooksAsync();
-
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-    let isbn = req.params.isbn;
-    res.send(JSON.stringify(books[isbn], null, 4));
+public_users.get('/isbn/:isbn', async (req, res) => {
+    const isbn = req.params.isbn;
+    const response = await getBookByISBNAsync(isbn);
+    res.send(JSON.stringify( response, null, 4));
 });
 
 const getBookByISBNAsync = async (isbn) => {
     try {
-        const response = await axios.get(`${baseUrl}isbn/${isbn}`);
-        const books = response.data;
-        console.log(books);
+        const response = books[isbn];
+        return new Promise((resolve) => {
+            resolve(response);
+        });
     } catch (error) {
         console.error(error.toString());
     }
 }
 
-// getBookByISBNAsync(1);
-
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-    let authorToMatch = req.params.author;
-    let matchedBooksByAuthor = [];
+public_users.get('/author/:author',async (req, res) => {
+    const authorToMatch = req.params.author;
+    const matchedBooksByAuthor = await getBooksByAuthorAsync(authorToMatch);
 
-    for (let key in books) {
-        if (books[key].author === authorToMatch) {
-            // destructure the book, to remove the author, because in the sample screenshot
-            // it is requested to have the result without the author property
-            const { author, ...bookWithoutAuthor } = books[key];
-
-            //Add isbn, to match how the result is requested in the sample screenshot
-            const bookWithISBN = {
-                isbn: key,
-                ...bookWithoutAuthor
-            };
-            matchedBooksByAuthor.push(bookWithISBN);
-        }
-    }
-
-    if (matchedBooksByAuthor.length > 0) {
+    if (matchedBooksByAuthor && matchedBooksByAuthor.length > 0) {
         const response = {
             booksbyauthor: matchedBooksByAuthor
           };
@@ -75,38 +59,37 @@ public_users.get('/author/:author',function (req, res) {
     }
 });
 
-const getBooksByAuthorAsync = async (author) => {
+const getBooksByAuthorAsync = async (authorToMatch) => {
     try {
-        const response = await axios.get(`${baseUrl}author/${author}`);
-        const books = response.data;
-        console.log(books);
+        let matchedBooksByAuthor = [];
+
+        for (let key in books) {
+            if (books[key].author === authorToMatch) {
+                // destructure the book, to remove the author, because in the sample screenshot
+                // it is requested to have the result without the author property
+                const { author, ...bookWithoutAuthor } = books[key];
+    
+                //Add isbn, to match how the result is requested in the sample screenshot
+                const bookWithISBN = {
+                    isbn: key,
+                    ...bookWithoutAuthor
+                };
+                matchedBooksByAuthor.push(bookWithISBN);
+            }
+        }
+        return new Promise((resolve) => {
+            resolve(matchedBooksByAuthor);
+        });
     } catch (error) {
         console.error(error.toString());
     }
 }
-// getBooksByAuthorAsync("Dante Alighieri");
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    let titleToMatch = req.params.title;
-    let matchedBooksByTitle = [];
-
-    for (let key in books) {
-        if (books[key].title === titleToMatch) {
-            // destructure the book, to remove the title, because in the sample screenshot
-            // it is requested to have the result without the title property
-            const { title, ...bookWithoutTitle} = books[key];
-
-            //Add isbn, to match how the result is requested in the sample screenshot
-             const bookWithISBN = {
-                isbn: key,
-                ...bookWithoutTitle
-            }
-            matchedBooksByTitle.push(bookWithISBN);
-        }
-    }
-
-    if (matchedBooksByTitle.length > 0) {
+public_users.get('/title/:title', async (req, res) => {
+    const titleToMatch = req.params.title;
+    const matchedBooksByTitle = await getBooksByTitleAsync(titleToMatch);
+    if (matchedBooksByTitle && matchedBooksByTitle.length > 0) {
         const response = {
             booksbytitle: matchedBooksByTitle
           };
@@ -116,16 +99,33 @@ public_users.get('/title/:title',function (req, res) {
     }
 });
 
-const getBooksByTitleAsync = async (title) => {
+const getBooksByTitleAsync = async (titleToMatch) => {
     try {
-        const response = await axios.get(`${baseUrl}title/${title}`);
-        const books = response.data;
-        console.log(books);
+        let matchedBooksByTitle = [];
+
+        for (let key in books) {
+            if (books[key].title === titleToMatch) {
+                // destructure the book, to remove the title, because in the sample screenshot
+                // it is requested to have the result without the title property
+                const { title, ...bookWithoutTitle} = books[key];
+
+                //Add isbn, to match how the result is requested in the sample screenshot
+                const bookWithISBN = {
+                isbn: key,
+                ...bookWithoutTitle
+            }
+            matchedBooksByTitle.push(bookWithISBN);
+        }
+
+        return new Promise((resolve) => {
+            resolve(matchedBooksByTitle);
+        })
+    }
+
     } catch (error) {
         console.error(error.toString());
     }
 }
-// getBooksByTitleAsync("Fairy tales")
 
 
 public_users.post("/register", (req,res) => {
